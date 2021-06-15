@@ -10,7 +10,7 @@ There was an issue during compilation (non-pointer type 'const tail_type'):
                    ^~
 ```
 
-The issue _seemed_ to be related to looking at the wrong field in from the internal `cons` helper:
+The issue _seemed_ to be related to looking at the wrong field from the internal `cons` helper:
 
 https://stackoverflow.com/questions/57111203/mutating-the-result-of-boostcombine
 
