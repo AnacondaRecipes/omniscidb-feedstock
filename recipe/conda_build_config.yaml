@@ -16,7 +16,6 @@ cuda_compiler:
   - nvcc
 cuda_compiler_version:
   - None
-  - 11.0                       # [linux64]
 pin_run_as_build:
   boost-cpp:
     max_pin: x.x.x

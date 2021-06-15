@@ -57,7 +57,7 @@ outputs:
         # (and other dependencies) is required just for the presence
         # so that one could run cmake for generating *.bc, and other
         # common data files.
-        - arrow-cpp ={{ arrow_version }}=*cpu
+        - arrow-cpp ={{ arrow_version }}
         - bisonpp
         - blosc
         - boost-cpp
@@ -134,7 +134,7 @@ outputs:
         - ninja
         - maven
       host:
-        - arrow-cpp ={{ arrow_version }}=*{{ build_ext }}
+        - arrow-cpp ={{ arrow_version }}
         - bisonpp
         - blosc
         - boost-cpp
@@ -158,7 +158,6 @@ outputs:
         - tbb-devel
         - thrift-cpp {{ thrift_version }}
       run:
-        - arrow-cpp-proc {{ arrow_version }} {{ build_ext }}
         - boost-cpp
         - bzip2
         # omnscidb Load-time UDF support calls clang++
@@ -170,7 +169,6 @@ outputs:
         - zlib
         - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
       run_constrained:
-        - arrow-cpp-proc {{ arrow_version }} {{ build_ext }}
         - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
 
     test:
@@ -297,7 +295,7 @@ outputs:
         - ninja
         - maven
       host:
-        - arrow-cpp ={{ arrow_version }}=*{{ build_ext }}
+        - arrow-cpp ={{ arrow_version }}
         - bisonpp
         - blosc
         - boost-cpp
@@ -315,7 +313,6 @@ outputs:
         - tbb-devel
         - thrift-cpp {{ thrift_version }}
       run:
-        - arrow-cpp-proc {{ arrow_version }} {{ build_ext }}
         - boost-cpp
         - bzip2
         # omnscidb Load-time UDF support calls clang++
@@ -327,7 +324,6 @@ outputs:
         - zlib
         - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
       run_constrained:
-        - arrow-cpp-proc * {{ build_ext }}
         - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
 
     test:
@@ -383,7 +379,7 @@ outputs:
         - ninja
         - maven
       host:
-        - arrow-cpp ={{ arrow_version }}=*{{ build_ext }}
+        - arrow-cpp ={{ arrow_version }}
         - bisonpp
         - blosc
         - boost-cpp
@@ -399,21 +395,19 @@ outputs:
         - libpng
         - librdkafka
         - numpy
-        - pyarrow ={{ arrow_version }}=*{{ build_ext }}
+        - pyarrow ={{ arrow_version }}
         - python
         - tbb
         - tbb-devel
         - thrift-cpp {{ thrift_version }}
         - {{ pin_subpackage('omniscidbe', exact=True) }}
       run:
-        - arrow-cpp-proc {{ arrow_version }} {{ build_ext }}
-        - pyarrow ={{ arrow_version }}=*{{ build_ext }}
+        - pyarrow ={{ arrow_version }}
         - python
         - tbb4py
         - {{ pin_subpackage('omniscidbe', exact=True) }}
 
       run_constrained:
-        - arrow-cpp-proc {{ arrow_version }} {{ build_ext }}
         - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
 
     test:
