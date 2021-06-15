@@ -23,6 +23,7 @@ source:
   patches:
     # omniscidb v 5.6.0 lacks a large portion of DBE support changes
     - omniscidb-missing-dbe-and-more.patch
+    - 0001-explicitly-read-head-from-cons.patch
 
 build:
   number: {{ number }}
