@@ -3,15 +3,15 @@
 c_compiler:
   - gcc                        # [linux]
 c_compiler_version:            # [unix]
-  - 9                          # [linux64]
+  - 8.4                        # [linux64]
 cxx_compiler:
   - gxx                        # [linux]
 cxx_compiler_version:          # [unix]
-  - 9                          # [linux64]
+  - 8.4                        # [linux64]
 cgo_compiler:
   - go-cgo
 cgo_compiler_version:          # [unix]
-  - 1.15                       # [linux64]
+  - 1.16                       # [linux64]
 cuda_compiler:
   - nvcc
 cuda_compiler_version:
