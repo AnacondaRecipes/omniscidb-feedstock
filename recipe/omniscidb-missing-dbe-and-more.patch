@@ -21921,15 +21921,6 @@ diff -Naur ./QueryRunner/QueryRunner.cpp ../omniscidb-master/QueryRunner/QueryRu
                 {},
                 g_calcite,
                 false,
-@@ -323,7 +338,7 @@
-   CHECK_EQ(parser.parse(query_str, parse_trees, last_parsed), 0) << query_str;
-   CHECK_EQ(parse_trees.size(), size_t(1));
-   auto stmt = parse_trees.front().get();
--  auto insert_values_stmt = dynamic_cast<InsertValuesStmt*>(stmt);
-+  auto insert_values_stmt = dynamic_cast<Parser::InsertValuesStmt*>(stmt);
-   CHECK(insert_values_stmt);
-   insert_values_stmt->execute(*session_info_);
-   return nullptr;
 diff -Naur ./QueryRunner/QueryRunner.h ../omniscidb-master/QueryRunner/QueryRunner.h
 --- ./QueryRunner/QueryRunner.h	2021-04-22 18:00:37.000000000 +0300
 +++ ../omniscidb-master/QueryRunner/QueryRunner.h	2021-04-21 00:02:57.000000000 +0300
