@@ -41,6 +41,18 @@ outputs:
       # cpu-only omniscidb-common for cuda is required only for
       # building cuda-enabled omniscidb
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
+      # todo: are not required, just useful to include. See note under host requirements.
+      ignore_run_exports:
+        - arrow-cpp
+        - blosc
+        - geos
+        - glog
+        - libarchive
+        - libgdal
+        - libllvm10
+        - libpng
+        - librdkafka
+        - libthrift
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
@@ -117,10 +129,18 @@ outputs:
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
       missing_dso_whitelist:
         - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
+        - lib/libclang-cpp.so.10  # covered by libclang-cpp
       track_features:
         {{ "- arrow-cuda" if cuda_enabled else "" }}
       ignore_run_exports:
         - cudatoolkit    # [cuda_compiler_version not in (undefined, "None")]
+        # In these the static archive is being picked up even with -DPREFER_STATIC_LIBS=off.
+        - gflags
+        - glog
+        - libclang-cpp
+        - libkml
+        - ncurses
+        - openldap
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
@@ -140,7 +160,9 @@ outputs:
         - arrow-cpp ={{ arrow_version }}
         - bisonpp
         - blosc
+        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
         - boost-cpp
+        - libboost
         - clangdev {{ llvm_version }}
         - double-conversion
         - flex
@@ -162,7 +184,10 @@ outputs:
         - tbb-devel
         - thrift-cpp {{ thrift_version }}
       run:
+        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
         - boost-cpp
+        - libboost
+        - double-conversion
         - bzip2
         # omnscidb Load-time UDF support calls clang++
         - gxx_{{ target_platform }}
@@ -237,7 +262,7 @@ outputs:
     version: {{ version }}
     script: build-pyomniscidb.sh
     build:
-      skip: true  # [cuda_compiler_version in ("11.0",)]
+      skip: true  # [cuda_compiler_version in ("11.0",) or not (linux64 or win64 or osx)]
       string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}
       noarch: python
     requirements:
