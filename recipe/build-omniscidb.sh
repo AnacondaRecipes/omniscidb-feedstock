@@ -121,6 +121,7 @@ case "$PKG_NAME" in
               -DENABLE_JAVA_REMOTE_DEBUG=off \
               -DENABLE_PROFILER=off \
               -DPREFER_STATIC_LIBS=off \
+              -DGflags_USE_STATIC_LIBS=OFF \
               $EXTRA_CMAKE_OPTIONS \
               ..
 
