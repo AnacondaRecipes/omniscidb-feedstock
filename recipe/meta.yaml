@@ -1,4 +1,4 @@
-{% set version = "5.6.0" %}
+{% set version = "5.6.2" %}
 {% set number = "0" %}
 {% set cuda_enabled = cuda_compiler_version is not undefined and cuda_compiler_version == '11.0' %}
 {% set build_ext_version = "1.0.0" %}
@@ -15,10 +15,12 @@ package:
 
 source:
   url: https://github.com/omnisci/omniscidb/archive/v{{ version }}.tar.gz
-  sha256: fbd85adbb35095e6bf4d4f9dace882e20bc2ff13c0de3a26ae7d6d07ce08bfc9
+  sha256: a303852e10d3f8713a2cd069313a240bde75538d5b152d5351ff829b8bafcd1e
   patches:
-    # omniscidb v 5.6.0 lacks a large portion of DBE support changes
-    - omniscidb-missing-dbe-and-more.patch
+    # Embedded support will start with v5.7.0. Until then, we should not backport or provide
+    # patching to allow it in order to maintain in sync with upstream.
+    # # omniscidb v 5.6.0 lacks a large portion of DBE support changes
+    # - omniscidb-missing-dbe-and-more.patch
     - 0001-explicitly-read-head-from-cons.patch
 
 build:
@@ -275,6 +277,8 @@ outputs:
     build:
       string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
+      # TODO: remove in version 5.7.0
+      skip: true
       missing_dso_whitelist:
         - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
       track_features:
@@ -359,6 +363,8 @@ outputs:
     build:
       string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
+      # TODO: remove in version 5.7.0
+      skip: true
       missing_dso_whitelist:
         - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
       track_features:
