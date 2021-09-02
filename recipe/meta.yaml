@@ -21,6 +21,7 @@ source:
   sha256: 395448687140e8c42f507f4466ceb074e7c0b354369f89f84bfbd80342f4a003
   patches:
     - 0001-explicitly-read-head-from-cons.patch
+    - 0002-replace-unknown-mapd-with-std.patch
 
 build:
   number: {{ number }}

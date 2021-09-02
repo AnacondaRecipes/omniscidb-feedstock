@@ -3,11 +3,11 @@
 c_compiler:
   - gcc                        # [linux]
 c_compiler_version:            # [unix]
-  - 8.4                        # [linux64]
+  - 9                          # [linux64]
 cxx_compiler:
   - gxx                        # [linux]
 cxx_compiler_version:          # [unix]
-  - 8.4                        # [linux64]
+  - 9                          # [linux64]
 cgo_compiler:
   - go-cgo
 cgo_compiler_version:          # [unix]
