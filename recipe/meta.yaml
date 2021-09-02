@@ -1,4 +1,4 @@
-{% set version = "5.6.2" %}
+{% set version = "5.7.0" %}
 {% set number = "0" %}
 {% set cuda_enabled = cuda_compiler_version is not undefined and cuda_compiler_version == '11.0' %}
 {% set build_ext_version = "1.0.0" %}
@@ -15,12 +15,8 @@ package:
 
 source:
   url: https://github.com/omnisci/omniscidb/archive/v{{ version }}.tar.gz
-  sha256: a303852e10d3f8713a2cd069313a240bde75538d5b152d5351ff829b8bafcd1e
+  sha256: 97cdf42f3aa3304fd46bc1246f58586e3c7a86430b53bb4620c4126e0ba1873e
   patches:
-    # Embedded support will start with v5.7.0. Until then, we should not backport or provide
-    # patching to allow it in order to maintain in sync with upstream.
-    # # omniscidb v 5.6.0 lacks a large portion of DBE support changes
-    # - omniscidb-missing-dbe-and-more.patch
     - 0001-explicitly-read-head-from-cons.patch
 
 build:
@@ -112,8 +108,8 @@ outputs:
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/RuntimeFunctions.bc
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/ExtensionFunctions.ast
         # jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ base_version }}-SNAPSHOT.jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ base_version }}-SNAPSHOT.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ version }}.jar
         - test -f ${PREFIX}/{{ install_base }}/bin/calcite-1.0-SNAPSHOT-jar-with-dependencies.jar
         # Unspecified
         - test -f ${PREFIX}/{{ install_base }}/bin/startomnisci
