@@ -29,7 +29,7 @@ geos:
 gflags:
 - '2.2'
 glog:
-- 0.4.0
+- '0.5'
 libarchive:
 - '3.5'
 libgdal:
@@ -46,6 +46,7 @@ numpy:
 - '1.17'
 - '1.17'
 - '1.17'
+- '1.19'
 openssl:
 - 1.1.1
 pin_run_as_build:
@@ -68,14 +69,15 @@ python:
 - 3.6.* *_cpython
 - 3.7.* *_cpython
 - 3.8.* *_cpython
+- 3.9.* *_cpython
 snappy:
 - '1'
 target_platform:
 - linux-64
 tbb:
-- '2020'
+- '2021'
 tbb_devel:
-- '2020'
+- '2021'
 zip_keys:
 - - c_compiler_version
   - cxx_compiler_version
