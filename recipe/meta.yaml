@@ -294,8 +294,6 @@ outputs:
     build:
       string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
-      # TODO: remove in version 5.7.0
-      skip: true
       missing_dso_whitelist:
         - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
       track_features:
@@ -380,8 +378,6 @@ outputs:
     build:
       string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
-      # TODO: remove in version 5.7.0
-      skip: true
       missing_dso_whitelist:
         - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
       track_features:
