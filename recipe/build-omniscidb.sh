@@ -300,15 +300,16 @@ case "$PKG_NAME" in
 
     pyomniscidbe)
 
-        if [[ "$RUN_DBE_TESTS" == "1" ]]
-        then
-            cd Embedded/test
-            $PYTHON test_fsi.py
-            $PYTHON test_readcsv.py
-            cd -
-        else
-            echo "Skipping Python DBE tests"
-        fi
+        echo "Skipping Python DBE tests at build time."
+        # if [[ "$RUN_DBE_TESTS" == "1" ]]
+        # then
+        #     cd Embedded/test
+        #     $PYTHON test_fsi.py
+        #     $PYTHON test_readcsv.py
+        #     cd -
+        # else
+        #     echo "Skipping Python DBE tests"
+        # fi
         ;;
 
     *)
