@@ -463,8 +463,11 @@ outputs:
       imports:
         - omniscidbe
       source_files:
-        - Embedded/test/test_exceptions.py
+        - Embedded/test/
+        - Tests/
       commands:
+        - python Embedded/test/test_fsi.py
+        - python Embedded/test/test_readcsv.py
         - pytest -sv Embedded/test/test_exceptions.py
 
     about:
