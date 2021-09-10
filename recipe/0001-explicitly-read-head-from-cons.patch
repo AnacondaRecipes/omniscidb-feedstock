@@ -1,0 +1,34 @@
+There was an issue during compilation (non-pointer type 'const tail_type'):
+
+```
+../TableArchiver/TableArchiver.cpp: In member function 'void TableArchiver::restoreTable(const Catalog_Namespace::SessionInfo&, const TableDescriptor*, const string&, const string&)':
+../TableArchiver/TableArchiver.cpp:382:52: error: base operand of '->' has non-pointer type 'const tail_type' {aka 'const boost::tuples::cons<const ColumnDescriptor* const&, boost::tuples::null_type>'}
+     if (src_cd.columnType.get_type_name() != dst_cd->columnType.get_type_name() ||
+                                                    ^~
+../TableArchiver/TableArchiver.cpp:384:19: error: base operand of '->' has non-pointer type 'const tail_type' {aka 'const boost::tuples::cons<const ColumnDescriptor* const&, boost::tuples::null_type>'}
+             dst_cd->columnType.get_compression_name()) {
+                   ^~
+```
+
+The issue _seemed_ to be related to looking at the wrong field from the internal `cons` helper:
+
+https://stackoverflow.com/questions/57111203/mutating-the-result-of-boostcombine
+
+Using the boost::get<0>(...) resolved the issue for omniscidb v5.6.0 & boost v1.73.
+
+diff --git a/TableArchiver/TableArchiver.cpp b/TableArchiver/TableArchiver.cpp
+index 33be2a3..8e05e9a 100644
+--- a/TableArchiver/TableArchiver.cpp
++++ b/TableArchiver/TableArchiver.cpp
+@@ -379,9 +379,9 @@ void TableArchiver::restoreTable(const Catalog_Namespace::SessionInfo& session,
+     throw std::runtime_error("Unmatched number of table columns");
+   }
+   for (const auto& [src_cd, dst_cd] : boost::combine(src_columns, dst_columns)) {
+-    if (src_cd.columnType.get_type_name() != dst_cd->columnType.get_type_name() ||
++    if (src_cd.columnType.get_type_name() != boost::get<0>(dst_cd)->columnType.get_type_name() ||
+         src_cd.columnType.get_compression_name() !=
+-            dst_cd->columnType.get_compression_name()) {
++            boost::get<0>(dst_cd)->columnType.get_compression_name()) {
+       throw std::runtime_error("Incompatible types on column " + src_cd.columnName);
+     }
+   }

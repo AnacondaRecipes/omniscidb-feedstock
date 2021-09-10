@@ -121,6 +121,7 @@ case "$PKG_NAME" in
               -DENABLE_JAVA_REMOTE_DEBUG=off \
               -DENABLE_PROFILER=off \
               -DPREFER_STATIC_LIBS=off \
+              -DGflags_USE_STATIC_LIBS=OFF \
               $EXTRA_CMAKE_OPTIONS \
               ..
 
@@ -299,15 +300,16 @@ case "$PKG_NAME" in
 
     pyomniscidbe)
 
-        if [[ "$RUN_DBE_TESTS" == "1" ]]
-        then
-            cd Embedded/test
-            $PYTHON test_fsi.py
-            $PYTHON test_readcsv.py
-            cd -
-        else
-            echo "Skipping Python DBE tests"
-        fi
+        echo "Skipping Python DBE tests at build time."
+        # if [[ "$RUN_DBE_TESTS" == "1" ]]
+        # then
+        #     cd Embedded/test
+        #     $PYTHON test_fsi.py
+        #     $PYTHON test_readcsv.py
+        #     cd -
+        # else
+        #     echo "Skipping Python DBE tests"
+        # fi
         ;;
 
     *)
