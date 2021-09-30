@@ -2,6 +2,8 @@ __migrator:
   build_number: 1
   kind: version
   migration_number: 1
-glog:
-- '0.5'
-migrator_ts: 1620651233.8113651
+gdal:
+- '3.3'
+libgdal:
+- '3.3'
+migrator_ts: 1621230681.7901614

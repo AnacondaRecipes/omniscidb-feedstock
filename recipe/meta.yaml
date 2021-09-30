@@ -1,11 +1,14 @@
-{% set version = "5.7.0" %}
+{% set version = "5.7.1" %}  # PEP 386
+{% set source_version = "5.7.1" %}
+{% set base_version = "5.7.1" %}
 {% set number = "0" %}
 {% set cuda_enabled = cuda_compiler_version is not undefined and cuda_compiler_version == '11.0' %}
 {% set build_ext_version = "1.0.0" %}
 {% set build_ext = "cuda" if cuda_enabled else "cpu" %}
 {% set install_base = "opt/omnisci" %}
-{% set arrow_version = "2.*" %}
-{% set thrift_version = "0.13.*" %}
+{% set arrow_version = "3.*" %}
+{% set pythrift_version = "0.13.*" %}
+{% set thrift_version = "0.14.*" %}
 # omniscidb 5.7 is not LLVM 12 ready
 {% set llvm_version = "<12" %}
 
@@ -14,11 +17,10 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/omnisci/omniscidb/archive/v{{ version }}.tar.gz
-  sha256: 97cdf42f3aa3304fd46bc1246f58586e3c7a86430b53bb4620c4126e0ba1873e
+  url: https://github.com/omnisci/omniscidb/archive/v{{ source_version }}.tar.gz
+  sha256: 395448687140e8c42f507f4466ceb074e7c0b354369f89f84bfbd80342f4a003
   patches:
     - 0001-explicitly-read-head-from-cons.patch
-    - 0002-replace-unknown-mapd-with-std.patch
 
 build:
   number: {{ number }}
@@ -77,6 +79,7 @@ outputs:
         - clangdev {{ llvm_version }}
         - double-conversion
         - flex
+        - fmt
         - geos
         - glog
         - llvmdev {{ llvm_version }}
@@ -109,8 +112,8 @@ outputs:
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/RuntimeFunctions.bc
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/ExtensionFunctions.ast
         # jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ version }}.jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ base_version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ base_version }}.jar
         - test -f ${PREFIX}/{{ install_base }}/bin/calcite-1.0-SNAPSHOT-jar-with-dependencies.jar
         # Unspecified
         - test -f ${PREFIX}/{{ install_base }}/bin/startomnisci
@@ -163,6 +166,7 @@ outputs:
         - clangdev {{ llvm_version }}
         - double-conversion
         - flex
+        - fmt
         - gflags
         - glog
         - llvmdev {{ llvm_version }}
@@ -260,6 +264,7 @@ outputs:
     build:
       skip: true  # [cuda_compiler_version in ("11.0",) or not (linux64 or win64 or osx)]
       string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}
+      noarch: python
     requirements:
       host:
         - python
@@ -269,7 +274,7 @@ outputs:
         - python
         - setuptools
         - {{ pin_compatible('numpy', lower_bound='1.16') }}
-        - thrift {{ thrift_version }}
+        - thrift {{ pythrift_version }}
         - packaging >=20.0
         - sqlalchemy >=1.3
         - requests
@@ -307,6 +312,10 @@ outputs:
         - libclang-cpp
         - ncurses
         - librdkafka
+      rpaths:
+        - lib/
+        # fixes "not found" in `ldd $PREFIX/lib/libDBEngine.so` output
+        - {{ install_base }}/lib
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
@@ -332,6 +341,7 @@ outputs:
         - clangdev {{ llvm_version }}
         - double-conversion
         - flex
+        - fmt
         - glog
         - llvmdev {{ llvm_version }}
         - llvm {{ llvm_version }}
@@ -372,6 +382,7 @@ outputs:
         - |
           source ${PREFIX}/etc/conda/activate.d/{{ PKG_NAME }}_activate.sh
           test -n "${OMNISCI_ROOT_PATH+x}"
+          ldd ${PREFIX}/lib/libDBEngine.so
 
     about:
       home: https://www.omnisci.com/
@@ -432,6 +443,7 @@ outputs:
         - cython
         - double-conversion
         - flex
+        - fmt
         - glog
         - llvmdev {{ llvm_version }}
         - llvm {{ llvm_version }}
@@ -442,6 +454,7 @@ outputs:
         - numpy
         - pyarrow ={{ arrow_version }}
         - python
+        - pytest
         - tbb
         - tbb-devel
         - thrift-cpp {{ thrift_version }}
