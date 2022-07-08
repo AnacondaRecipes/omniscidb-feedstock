@@ -1,6 +1,6 @@
 
 
-{% set version = "5.10.2" %}
+{% set version = "5.10.1" %}
 {% set buildnum = "6" %}
 
 package:
@@ -8,7 +8,7 @@ package:
   version: {{ version }}
 
 source:
-  - url: https://anaconda.org/conda-forge/omniscidb-common/{{ version }}/download/{{ target_platform }}/omniscidb-common-{{ version }}-{{ 'py'+python.replace('.', '') }}h1234567_{{ buildnum }}_cpu.tar.bz2
+  - url: https://anaconda.org/conda-forge/omniscidb-common/{{ version }}/download/{{ target_platform }}/omniscidb-common-{{ version }}-h1234567_{{ buildnum }}_cpu.tar.bz2
     folder: omniscidb-common
   - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-{{ 'py'+python.replace('.', '') }}h1234567_{{ buildnum }}_cpu.tar.bz2
     folder: pyomniscidbe
