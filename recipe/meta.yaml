@@ -1,16 +1,19 @@
 
 
 {% set version = "5.10.1" %}
-{% set buildnum = "6" %}
+{% set buildnum = "0" %}
+{% set install_base = "opt/omnisci" %}
 
 package:
   name: intel_repack
   version: {{ version }}
 
 source:
-  - url: https://anaconda.org/conda-forge/omniscidb-common/{{ version }}/download/{{ target_platform }}/omniscidb-common-{{ version }}-h1234567_{{ buildnum }}_cpu.tar.bz2
+  - url: https://anaconda.org/conda-forge/omniscidb-common/{{ version }}/download/{{ target_platform }}/omniscidb-common-{{ version }}-h1234567_{{ buildnum }}.tar.bz2
     folder: omniscidb-common
-  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-{{ 'py'+python.replace('.', '') }}h1234567_{{ buildnum }}_cpu.tar.bz2
+  - url: https://anaconda.org/conda-forge/omniscidbe/{{ version }}/download/{{ target_platform }}/omniscidbe-{{ version }}-h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: omniscidbe
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-{{ 'py' ~ python | replace('.', '') }}h1234567_{{ buildnum }}_cpu.tar.bz2
     folder: pyomniscidbe
 
 build:
@@ -56,8 +59,8 @@ outputs:
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/RuntimeFunctions.bc
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/ExtensionFunctions.ast
         # jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ base_version }}.jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ base_version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ version }}.jar
         - test -f ${PREFIX}/{{ install_base }}/bin/calcite-1.0-SNAPSHOT-jar-with-dependencies.jar
         # Unspecified
         - test -f ${PREFIX}/{{ install_base }}/bin/startomnisci
@@ -68,7 +71,7 @@ outputs:
       home: https://www.omnisci.com/
       license: Apache-2.0
       license_family: APACHE
-      license_file: LICENSE.md
+      license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
       summary: The OmniSci database common files.
       description: |
         OmniSciDB is an in-memory, column store, SQL relational database
