@@ -26,16 +26,30 @@ if [ "$PKG_NAME" = "omniscidbe" ]; then
     # show updated rpath
     readelf -d "$PREFIX/"lib/libDBEngine.so | egrep "RPATH|RUNPATH"
 
+    # repack libclang-cpp
+    cp -rv "$SRC_DIR/libclang-cpp"/lib/libclang-cpp.so.* "$PREFIX/omniscidb-repack/"
+
     # repack boost-cpp
     cp -rv "$SRC_DIR/boost"/lib/libboost*.so.* "$PREFIX/omniscidb-repack/"
 
     # repack icu (needed for boost-cpp)
-    ls -R "$SRC_DIR/icu"
     cp -rv "$SRC_DIR/icu"/lib/libicu*.so.* "$PREFIX/omniscidb-repack/"
 
     # repack arrow-cpp
-    ls -R "$SRC_DIR/arrowcpp"
     cp -rv "$SRC_DIR/arrowcpp"/lib/lib*.so.* "$PREFIX/omniscidb-repack/"
+
+    # for libarchive 3.5.2 cf has interface wrongly set to 13
+    patchelf --replace-needed "libarchive.so.13" "libarchive.so.18" "$PREFIX/"lib/libDBEngine.so
+
+    # pushd "$PREFIX/omniscidb-repack/"
+    # regex='\[(.*)\]'
+    # for f in *;
+    # do
+    #     mv -v -- "$f" "REPACK_$f"
+    #     patchelf --set-soname "REPACK_$f" "REPACK_$f"
+    #     patchelf --replace-needed "$f" "REPACK_$f" "$PREFIX/"lib/libDBEngine.so
+    # done
+    # popd
 fi
 
 # replace old info folder with our new regenerated one
