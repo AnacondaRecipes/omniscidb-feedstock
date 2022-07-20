@@ -18,6 +18,20 @@
                   'py310' : '1e20f1232a66cae0af57074601d0ab87a7f09da8c774f2ba31f97c080dd53fe6',
                }
 %}
+{% set pyarrow_hash_map = {
+                  'py37' : 'py37h992f0b0_0',
+                  'py38' : 'py38h992f0b0_0',
+                  'py39' : 'py39h992f0b0_0',
+                  'py310' : 'py310h468efa6_0',
+               }
+%}
+{% set pyarrow_sha256_map = {
+                  'py37' : '95fbeb9784f152f17b2f1340c86bc53f5a5968d63f2c4a97268e85fd3a25b3d3',
+                  'py38' : 'caf0e8ab0d22d8c39c9c5148ab911d9c854872fe1c333f6aa0e8afed8ed3c991',
+                  'py39' : '3aafd13efb31b9f58a35f44e87798e823b5c8ec7669dd35a95f0b5346553253b',
+                  'py310' : '1e20f1232a66cae0af57074601d0ab87a7f09da8c774f2ba31f97c080dd53fe6',
+               }
+%}
 {% set pyomniscidbe_sha256_map = {
                   'py37'  : '962b623f59c9fbc0458ed7133c760fb2d5c25204608d5c6e68a214c7f9457718',
                   'py38'  : '4a66ce11ee2da9d25c53f3a321dda6b3f3b247f5d4f4d534f1e29940626da63f',
@@ -31,6 +45,9 @@ package:
   version: {{ version }}
 
 source:
+  - url: https://github.com/omnisci/omniscidb/archive/v{{ version }}.tar.gz
+    folder: source
+    sha256: a41099704792cf928c9bc8e7f1c6ede1a400b0c024a8d22e8c4daaff329bd451
   - url: https://anaconda.org/conda-forge/omniscidb-common/{{ version }}/download/{{ target_platform }}/omniscidb-common-{{ version }}-h1234567_{{ buildnum }}.tar.bz2
     folder: omniscidb-common
     sha256: 91c7c146381e7a8d866c23ad6d2834844922c2d5e78b5c873a0c7b5e7acbc571
@@ -49,6 +66,9 @@ source:
   - url: https://anaconda.org/cbouss/arrow-cpp/6.0.1/download/linux-64/arrow-cpp-6.0.1-{{ arrow_hash_map[pyver] }}.tar.bz2
     folder: arrowcpp
     sha256: {{ arrow_sha256_map[pyver] }}
+  # - url: https://anaconda.org/cbouss/pyarrow/6.0.1/download/linux-64/pyarrow-6.0.1-{{ pyarrow_hash_map[pyver] }}.tar.bz2
+  #   folder: pyarrow
+  #   #sha256: {{ pyarrow_sha256_map[pyver] }}
   - url: https://anaconda.org/conda-forge/libclang-cpp11.1/11.1.0/download/{{ target_platform }}/libclang-cpp11.1-11.1.0-default_ha53f305_1.tar.bz2
     folder: libclang-cpp
     sha256: 24427a0c7d99423199a97c4e7ddec20b1bf6f35bad3fb1d5acea0a65c52e4834
@@ -58,6 +78,7 @@ build:
   binary_relocation: false
   detect_binary_files_with_prefix: false
   skip: True  # [not (x86 and linux)]
+  skip: True  # [python != '3.9']
   runpath_whitelist:
     - $ORIGIN
 
@@ -67,8 +88,9 @@ outputs:
     script: repack.sh   # [unix]
     build:
       #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
-      #skip: True  # [not (x86 and linux)]
-      skip: True
+      skip: True  # [not (x86 and linux)]
+      #skip: True  # [python != '3.9']
+      #skip: True
       run_exports:
         - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
     requirements:
@@ -125,6 +147,7 @@ outputs:
     build:
       #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: True  # [not (x86 and linux)]
+      skip: True  # [python != '3.9']
       run_exports:
         - {{ pin_subpackage('omniscidbe',  max_pin='x.x.x') }}
       ignore_run_exports:
@@ -152,15 +175,16 @@ outputs:
         - {{ compiler('c') }}
         - patchelf
       host:
-        # - arrow-cpp >=6.0.1,<6.0.2.0a0
-        #   - arrow-cpp-proc 3.* cpu
+        #- arrow-cpp >=6.0.1,<6.0.2.0a0       # --> repack of arrow-cpp
+        #- arrow-cpp-proc 3.* cpu             # --> repack of arrow-cpp
         - blosc >=1.21.0,<2.0a0
-        # - boost-cpp >=1.74.0,<1.74.1.0a0
+        #- boost-cpp >=1.74.0,<1.74.1.0a0     # --> repack of boost-cpp
         - bzip2
+        #- double-conversion >=3.2.0,<3.3.0a0 # --> 3.1.5 in default is compatible
         - double-conversion >=3.1.5,<3.3.0a0
         - gxx_linux-64
         - libarchive >=3.5.2,<3.6.0a0
-        #- libclang-cpp >=11.1.0,<11.2.0a0
+        #- libclang-cpp >=11.1.0,<11.2.0a0    # --> repack of libclang-cpp
         - libgcc-ng >=9.4.0
         - libgdal >=3.4.1,<3.5.0a0
         - libllvm11 >=11.1.0,<11.2.0a0
@@ -219,15 +243,18 @@ outputs:
         - python 
         # ------------------------------------------------------------------------
       run:
-        #- arrow-cpp >=6.0.1,<6.0.2.0a0
-    #   - arrow-cpp-proc 3.* cpu
+        - {{ pin_subpackage('omniscidb-common', exact=True) }}
+
+        #- arrow-cpp >=6.0.1,<6.0.2.0a0       # --> repack of arrow-cpp
+        #- arrow-cpp-proc 3.* cpu             # --> repack of arrow-cpp
         - blosc >=1.21.0,<2.0a0
-    #   - boost-cpp >=1.74.0,<1.74.1.0a0
+        #- boost-cpp >=1.74.0,<1.74.1.0a0     # --> repack of boost-cpp
         - bzip2
+        #- double-conversion >=3.2.0,<3.3.0a0 # --> 3.1.5 in default is compatible
         - double-conversion >=3.1.5,<3.3.0a0
         - gxx_linux-64
         - libarchive >=3.5.2,<3.6.0a0
-        #- libclang-cpp >=11.1.0,<11.2.0a0
+        #- libclang-cpp >=11.1.0,<11.2.0a0    # --> repack of libclang-cpp
         - libgcc-ng >=9.4.0
         - libgdal >=3.4.1,<3.5.0a0
         - libllvm11 >=11.1.0,<11.2.0a0
@@ -235,7 +262,6 @@ outputs:
         - libstdcxx-ng >=9.4.0
         - libthrift >=0.15.0,<0.15.1.0a0
         - ncurses
-        - omniscidb-common >=5.10.1,<5.10.2.0a0
         - openjdk 8.*
         - tbb >=2021.5.0
         - xz
@@ -290,21 +316,120 @@ outputs:
   - name: pyomniscidbe
     script: repack.sh   # [unix]
     build:
+      #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
+      skip: True  # [not (x86 and linux)]
+      skip: True  # [python != '3.9']
       run_exports:
         - {{ pin_subpackage('pyomniscidbe',  max_pin='x.x.x') }}
       ignore_run_exports:
+        # all deps below are from arrow-cpp.
+        # somehow pyomniscidbe doesn't seem to need them...
         - python
+        - abseil-cpp
+        - orc
+        - zstd
+        - libthrift
+        - brotli
+        - libprotobuf
+        - glog
+        - grpc-cpp
+        - lz4-c
+        - openssl
+        - xz
+        - bzip2
+        - zlib
+        - aws-sdk-cpp
+        - gflags
+        - re2
+        - snappy
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
         - {{ compiler('c') }}
       host:
+        # ------------------------------------------------------------------------
+        # repack of pyomniscidbe requires providing the host dependencies
+        # which trigger a run_export.
+        # ------------------------------------------------------------------------
         - {{ pin_subpackage('omniscidbe', exact=True) }}
-        - libstdcxx-ng >=9.4.0 # needed by omniscidbe.cpython-38-x86_64-linux-gnu.so
+        - libgcc-ng >=9.4.0
+        - libstdcxx-ng >=9.4.0
+        - libthrift >=0.15.0,<0.15.1.0a0
+        # ------------------------------------------------------------------------
+
+        # ------------------------------------------------------------------------
+        # repack of libboost requires providing the same dependencies
+        # the following section is a copy-paste from boost's recipe
+        # ------------------------------------------------------------------------
+        # libboost depends on icu 70, so icu is also repacked.
+        #- icu  # [unix]
+        - libiconv  # [osx]
+        - bzip2  # [unix]
+        - xz >=5.2.5
+        - zstd >=1.4.5
+        - zlib >=1.2.11
+
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        - abseil-cpp  # [not osx]
+        - aws-sdk-cpp
+        - boost-cpp
+        - brotli
+        - bzip2
+        # Only required and used on Windows.
+        - c-ares  # [win]
+        # The binary using this presumably isn't built on Windows.
+        - gflags  # [not win]
+        - glog
+        - grpc-cpp
+        - lz4-c
+        - numpy
+        - openssl
+        - orc  # [unix]
+        - libprotobuf
+        - rapidjson
+        - re2
+        - snappy
+        - thrift-cpp
+        - uriparser
+        - utf8proc
+        - zlib
+        - zstd
+        - python 
+        # ------------------------------------------------------------------------
       run:
+        # ------------------------------------------------------------------------
+        # repack of pyomniscidbe requires providing the same dependencies
+        # the following section is a copy-paste from pyomniscidbe's recipe
+        # ------------------------------------------------------------------------
+        #- arrow-cpp-proc {{ arrow_proc_version }} {{ build_ext }}  # --> repack of arrow-cpp
+        #- pyarrow ={{ arrow_version }}=*{{ build_ext }}            # --> repack of pyarrow
+        - pyarrow =6.0.1 # TODO: how do you repack a python package??
         - python
+        - tbb4py
         - {{ pin_subpackage('omniscidbe', exact=True) }}
-        - libstdcxx-ng >=9.4.0 # needed by omniscidbe.cpython-38-x86_64-linux-gnu.so
+        - libstdcxx-ng >=9.4.0
+        # ------------------------------------------------------------------------
+
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        # gflags does have a run_exports, but for some reason conda-build doesn't
+        # pick it up.
+        - {{ pin_compatible('gflags', max_pin='x.x') }}  # [not win]
+        # brotli doesn't have run_exports defined.
+        - brotli  # [osx]
+        # Set this to some reasonable lower limit.
+        - {{ pin_compatible('numpy', lower_bound='1.16') }}
+        - utf8proc
+        # It's not clear to me, why conda-build detects them, but doesn't create
+        # an automatic dependency.
+        - zlib  # [win]
+        - python
+        # ------------------------------------------------------------------------
     test:
       requires:
         - pytest
@@ -313,12 +438,12 @@ outputs:
       imports:
         - omniscidbe
       source_files:
-        - Embedded/test/
-        - Tests/
+        - source/Embedded/test/
+        - source/Tests/
       commands:
-        - python Embedded/test/test_fsi.py
-        - python Embedded/test/test_readcsv.py
-        - pytest -sv Embedded/test/test_exceptions.py
+        - python source/Embedded/test/test_fsi.py
+        - python source/Embedded/test/test_readcsv.py
+        - pytest -sv source/Embedded/test/test_exceptions.py
     about:
       home: https://www.omnisci.com/
       license: Apache-2.0
