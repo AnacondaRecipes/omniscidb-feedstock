@@ -26,10 +26,10 @@
                }
 %}
 {% set pyarrow_sha256_map = {
-                  'py37' : '95fbeb9784f152f17b2f1340c86bc53f5a5968d63f2c4a97268e85fd3a25b3d3',
-                  'py38' : 'caf0e8ab0d22d8c39c9c5148ab911d9c854872fe1c333f6aa0e8afed8ed3c991',
-                  'py39' : '3aafd13efb31b9f58a35f44e87798e823b5c8ec7669dd35a95f0b5346553253b',
-                  'py310' : '1e20f1232a66cae0af57074601d0ab87a7f09da8c774f2ba31f97c080dd53fe6',
+                  'py37' : '9a0bea486c461716afa493b5440e51efad2e7aafcc94a6144878c75aafebec61',
+                  'py38' : '8966c4d110254be6889ab388f05307c329337b6187e0d266a946ffb4535cbf7b',
+                  'py39' : 'a216fff5a170090a8c4f88e9c2ed16df2c444c64f03db658641cbf3c0cdce2ad',
+                  'py310' : '19d6522166076c49f218919bf25a9d1fe949cb21052a757db413344faf9da0e8',
                }
 %}
 {% set pyomniscidbe_sha256_map = {
@@ -66,9 +66,9 @@ source:
   - url: https://anaconda.org/cbouss/arrow-cpp/6.0.1/download/linux-64/arrow-cpp-6.0.1-{{ arrow_hash_map[pyver] }}.tar.bz2
     folder: arrowcpp
     sha256: {{ arrow_sha256_map[pyver] }}
-  # - url: https://anaconda.org/cbouss/pyarrow/6.0.1/download/linux-64/pyarrow-6.0.1-{{ pyarrow_hash_map[pyver] }}.tar.bz2
-  #   folder: pyarrow
-  #   #sha256: {{ pyarrow_sha256_map[pyver] }}
+  - url: https://anaconda.org/cbouss/pyarrow/6.0.1/download/linux-64/pyarrow-6.0.1-{{ pyarrow_hash_map[pyver] }}.tar.bz2
+    folder: pyarrow
+    sha256: {{ pyarrow_sha256_map[pyver] }}
   - url: https://anaconda.org/conda-forge/libclang-cpp11.1/11.1.0/download/{{ target_platform }}/libclang-cpp11.1-11.1.0-default_ha53f305_1.tar.bz2
     folder: libclang-cpp
     sha256: 24427a0c7d99423199a97c4e7ddec20b1bf6f35bad3fb1d5acea0a65c52e4834
@@ -406,7 +406,6 @@ outputs:
         # ------------------------------------------------------------------------
         #- arrow-cpp-proc {{ arrow_proc_version }} {{ build_ext }}  # --> repack of arrow-cpp
         #- pyarrow ={{ arrow_version }}=*{{ build_ext }}            # --> repack of pyarrow
-        - pyarrow =6.0.1 # TODO: how do you repack a python package??
         - python
         - tbb4py
         - {{ pin_subpackage('omniscidbe', exact=True) }}
