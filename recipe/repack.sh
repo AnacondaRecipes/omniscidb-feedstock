@@ -23,9 +23,11 @@ if [[ "${target_platform}" == "linux-64" ]]; then
         readelf -d $TARGET_SO | egrep "RPATH|RUNPATH"
 
         # add repack folder to rpath
+        # originally: (RPATH)              Library rpath: [$ORIGIN/../../../lib:$ORIGIN/.]
         mkdir -p "$PREFIX/omniscidb-repack/bin/"
         mkdir -p "$PREFIX/omniscidb-repack/lib/"
-        patchelf --force-rpath --add-rpath '$ORIGIN/../../../omniscidb-repack/lib/' $TARGET_SO
+        patchelf --force-rpath --add-rpath '$ORIGIN/../../../omniscidb-repack/lib/' $TARGET_SO # used at build time
+        patchelf --force-rpath --add-rpath '$ORIGIN/../omniscidb-repack/lib/' $TARGET_SO # used at run time
 
         # show updated rpath
         readelf -d $TARGET_SO | egrep "RPATH|RUNPATH"
@@ -47,10 +49,12 @@ if [[ "${target_platform}" == "linux-64" ]]; then
             mv "$SRC_DIR/pyarrow/lib/python$PY_VER/site-packages/pyarrow" "${SP_DIR}/pyarrow6"
             pushd "${SP_DIR}/pyarrow6"
             patchelf --force-rpath --add-rpath '$ORIGIN/../../../../omniscidb-repack/lib/' plasma-store-server
+            patchelf --force-rpath --add-rpath '$ORIGIN/../../omniscidb-repack/lib/' plasma-store-server
             for f in *.so;
             do
                 readelf -d $f | egrep "RPATH|RUNPATH"
                 patchelf --force-rpath --add-rpath '$ORIGIN/../../../../omniscidb-repack/lib/' $f
+                patchelf --force-rpath --add-rpath '$ORIGIN/../../omniscidb-repack/lib/' $f
             done
             popd
         fi
