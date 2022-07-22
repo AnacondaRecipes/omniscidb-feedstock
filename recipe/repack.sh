@@ -38,8 +38,8 @@ if [[ "${target_platform}" == "linux-64" ]]; then
         # repack boost-cpp
         cp -rv "$SRC_DIR/boost"/lib/libboost*.so.* "$PREFIX/omniscidb-repack/lib/"
 
-        # repack icu (needed for boost-cpp)
-        cp -rv "$SRC_DIR/icu"/lib/libicu*.so.* "$PREFIX/omniscidb-repack/lib/"
+        # # repack icu (needed for boost-cpp)
+        # cp -rv "$SRC_DIR/icu"/lib/libicu*.so.* "$PREFIX/omniscidb-repack/lib/"
 
         # repack arrow-cpp
         cp -rv "$SRC_DIR/arrowcpp"/lib/lib*.so.* "$PREFIX/omniscidb-repack/lib/"

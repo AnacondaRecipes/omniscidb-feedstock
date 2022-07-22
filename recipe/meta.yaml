@@ -57,12 +57,15 @@ source:
   - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-{{ pyver }}h1234567_{{ buildnum }}_cpu.tar.bz2
     folder: pyomniscidbe
     sha256: {{ pyomniscidbe_sha256_map[pyver] }}
-  - url: https://anaconda.org/conda-forge/boost-cpp/1.74.0/download/{{ target_platform }}/boost-cpp-1.74.0-h75c5d50_8.tar.bz2
+  - url: https://anaconda.org/stiwari_anac_org/libboost/1.74.0/download/{{ target_platform }}/libboost-1.74.0-hb88907d_0.tar.bz2
     folder: boost
-    sha256: 82d7d5c3042baae2cc7ee798612681f72ad348978d72ac17de9f3c41183f0a19
-  - url: https://anaconda.org/conda-forge/icu/70.1/download/{{ target_platform }}/icu-70.1-h27087fc_0.tar.bz2
-    folder: icu
-    sha256: 1d7950f3be4637ab915d886304e57731d39a41ab705ffc95c4681655c459374a
+    sha256: 2fededc174457aac466963ccb7858638ad91299df1addbb5fe22dea7a9a22d8e
+  # - url: https://anaconda.org/conda-forge/boost-cpp/1.74.0/download/{{ target_platform }}/boost-cpp-1.74.0-h75c5d50_8.tar.bz2
+  #   folder: boost
+  #   sha256: 82d7d5c3042baae2cc7ee798612681f72ad348978d72ac17de9f3c41183f0a19
+  # - url: https://anaconda.org/conda-forge/icu/70.1/download/{{ target_platform }}/icu-70.1-h27087fc_0.tar.bz2
+  #   folder: icu
+  #   sha256: 1d7950f3be4637ab915d886304e57731d39a41ab705ffc95c4681655c459374a
   - url: https://anaconda.org/cbouss/arrow-cpp/6.0.1/download/linux-64/arrow-cpp-6.0.1-{{ arrow_hash_map[pyver] }}.tar.bz2
     folder: arrowcpp
     sha256: {{ arrow_sha256_map[pyver] }}
@@ -204,8 +207,7 @@ outputs:
         # repack of libboost requires providing the same dependencies
         # the following section is a copy-paste from boost's recipe
         # ------------------------------------------------------------------------
-        # libboost depends on icu 70, so icu is also repacked.
-        #- icu  # [unix]
+        - icu  # [unix]
         - libiconv  # [osx]
         - bzip2  # [unix]
         - xz >=5.2.5
@@ -342,6 +344,7 @@ outputs:
         - gflags
         - re2
         - snappy
+        - icu
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
@@ -361,8 +364,7 @@ outputs:
         # repack of libboost requires providing the same dependencies
         # the following section is a copy-paste from boost's recipe
         # ------------------------------------------------------------------------
-        # libboost depends on icu 70, so icu is also repacked.
-        #- icu  # [unix]
+        - icu  # [unix]
         - libiconv  # [osx]
         - bzip2  # [unix]
         - xz >=5.2.5
