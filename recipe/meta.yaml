@@ -6,12 +6,12 @@
 {% set build_ext_version = "1.0.0" %}
 {% set build_ext = "cuda" if cuda_enabled else "cpu" %}
 {% set install_base = "opt/omnisci" %}
-{% set arrow_version = "6.*" %}
+{% set arrow_version = "8.*" %}
 {% set arrow_proc_version = "3.*" %}
 {% set pythrift_version = "0.15.*" %}
 {% set thrift_version = "0.15.*" %}
 # omniscidb 5.10 is not LLVM 12 ready
-{% set llvm_version = "11" %}
+{% set llvm_version = "10" %}
 
 package:
   name: omniscidb-ext
@@ -19,8 +19,9 @@ package:
 
 source:
   url: https://github.com/omnisci/omniscidb/archive/v{{ source_version }}.tar.gz
-  sha256: 73340011e93cc76f644e60a45e0205bba7684c969af43bf675026675029387c6
+  sha256: a41099704792cf928c9bc8e7f1c6ede1a400b0c024a8d22e8c4daaff329bd451
   patches:
+    - 0001-explicitly-read-head-from-cons.patch
     - 0001-Fix-DBE-build.patch
 
 build:
@@ -45,7 +46,7 @@ outputs:
       run_exports:
         - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
       ignore_run_exports:
-        - arrow-cpp {{ arrow_version }}
+        - arrow-cpp
         - blosc
         - double-conversion
         - fmt
@@ -132,6 +133,7 @@ outputs:
     build:
       string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
+      skip: true
       missing_dso_whitelist:
         - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
         - lib/libclang-cpp.so.10  # covered by libclang-cpp
@@ -272,8 +274,8 @@ outputs:
     script: build-pyomniscidb.sh
     build:
       skip: true  # [cuda_compiler_version in ("11.0",) or not (linux64 or win64 or osx)]
+      skip: true
       string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}
-      noarch: python
       run_exports:
         - {{ pin_subpackage('pyomniscidb',  max_pin='x.x.x') }}
     requirements:
@@ -366,7 +368,9 @@ outputs:
         - tbb
         - tbb-devel
         - thrift-cpp {{ thrift_version }}
+        - xerces-c
       run:
+        - arrow-cpp
         - boost-cpp
         # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
         - libboost
@@ -382,6 +386,7 @@ outputs:
         - double-conversion
         - librdkafka
         - snappy
+        - xerces-c
       run_constrained:
         - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
 
@@ -422,7 +427,7 @@ outputs:
       track_features:
         {{ "- arrow-cuda" if cuda_enabled else "" }}
       ignore_run_exports:
-        - arrow-cpp {{ arrow_version }}
+        - arrow-cpp
         - blosc
         - cudatoolkit    # [cuda_compiler_version not in (undefined, "None")]
         - double-conversion
@@ -433,8 +438,7 @@ outputs:
         - libllvm{{ llvm_version }}
         - libpng
         - librdkafka
-        - libthrift {{ thrift_version }}
-        - pyarrow {{ arrow_version }}
+        - libthrift
         - python
         - tbb
       run_exports:
@@ -458,7 +462,9 @@ outputs:
         - arrow-cpp ={{ arrow_version }}
         - bisonpp
         - blosc
+        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
         - boost-cpp
+        - libboost
         - clangdev {{ llvm_version }}
         - cython
         - double-conversion
@@ -481,6 +487,8 @@ outputs:
         - {{ pin_subpackage('omniscidbe', exact=True) }}
       run:
         - pyarrow ={{ arrow_version }}
+        - arrow-cpp ={{ arrow_version }}
+        - libboost
         - python
         - tbb4py
         - {{ pin_subpackage('omniscidbe', exact=True) }}
