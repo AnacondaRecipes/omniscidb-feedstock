@@ -1,22 +1,29 @@
 #!/bin/bash
 set -ex
 
-# for subpackages, we have named our extracted locations according to the subpackage name
-#    That's what this $PKG_NAME is doing - picking the right subfolder to rsync
-src="$SRC_DIR/$PKG_NAME"
-cp -rv "$src"/* "$PREFIX/"
+# repack omniscidb-common
+if [[ "${target_platform}" == "linux-64" ]]; then
+    if [[ "$PKG_NAME" = "omniscidb-common" ]]; then
+        src="$SRC_DIR/omniscidb-common"
+        cp -rv "$src"/* "$PREFIX/"
+    fi
+fi
 
-# repack dependencies of omniscidbe and pyomniscidbe
+# repack omniscidbe and pyomniscidbe and their dependencies
 if [[ "${target_platform}" == "linux-64" ]]; then
     if [[ "$PKG_NAME" = "omniscidbe" ]] || [[ "$PKG_NAME" = "pyomniscidbe" ]]; then
 
+        PYVER=${PY_VER//[.]/}
         TARGET_SO=
         if [[ "$PKG_NAME" = "omniscidbe" ]]; then
+            src="$SRC_DIR/omniscidbe"
+            cp -rv "$src"/* "$PREFIX/"
             TARGET_SO="$PREFIX/"lib/libDBEngine.so
         fi
         if [[ "$PKG_NAME" = "pyomniscidbe" ]]; then
-            PYVER=${PY_VER//[.]/}
-            TARGET_SO="$PREFIX/"lib/python$PY_VER/site-packages/omniscidbe.cpython-$PYVER-x86_64-linux-gnu.so
+            src="$SRC_DIR/pyomniscidbe_py$PYVER"
+            cp -rv "$src"/* "$PREFIX/"
+            TARGET_SO="$PREFIX/"lib/python$PY_VER/site-packages/omniscidbe.cpython-*-x86_64-linux-gnu.so
         fi
 
         # show current rpath
@@ -38,15 +45,12 @@ if [[ "${target_platform}" == "linux-64" ]]; then
         # repack boost-cpp
         cp -rv "$SRC_DIR/boost"/lib/libboost*.so.* "$PREFIX/omniscidb-repack/lib/"
 
-        # # repack icu (needed for boost-cpp) --> not anymore after building boost-cpp 1.74 with default.
-        # cp -rv "$SRC_DIR/icu"/lib/libicu*.so.* "$PREFIX/omniscidb-repack/lib/"
-
         # repack arrow-cpp
-        cp -rv "$SRC_DIR/arrowcpp"/lib/lib*.so.* "$PREFIX/omniscidb-repack/lib/"
+        cp -rv "$SRC_DIR/arrowcpp_py$PYVER"/lib/lib*.so.* "$PREFIX/omniscidb-repack/lib/"
 
         if [[ "$PKG_NAME" = "pyomniscidbe" ]]; then
             # repack pyarrow and rename it to pyarrow6 to avoid conflicts with other pyarrow versions
-            mv "$SRC_DIR/pyarrow/lib/python$PY_VER/site-packages/pyarrow" "${SP_DIR}/pyarrow"
+            mv "$SRC_DIR/pyarrow_py$PYVER/lib/python$PY_VER/site-packages/pyarrow" "${SP_DIR}/pyarrow"
             pushd "${SP_DIR}/pyarrow"
             patchelf --force-rpath --add-rpath '$ORIGIN/../../../../omniscidb-repack/lib/' plasma-store-server
             patchelf --force-rpath --add-rpath '$ORIGIN/../../omniscidb-repack/lib/' plasma-store-server
@@ -64,9 +68,14 @@ if [[ "${target_platform}" == "linux-64" ]]; then
 
     fi
 
+    # This code below is commented because pyomniscidbe cython still looks for pyarrow.
+    # Instead, run_constrained pyarrow ==6.0.1 is added to the recipe.
     # if [[ "$PKG_NAME" = "pyomniscidbe" ]]; then
-    #     # source is there to provide the tests of pyomniscidbe.
+    #       # rename repacked pyarrow to pyarrow6 to avoid conflicts with other pyarrow versions
+    #      mv "$SRC_DIR/pyarrow/lib/python$PY_VER/site-packages/pyarrow" "${SP_DIR}/pyarrow"
+    #
     #     # Since pyarrow is repacked to pyarrow6, the tests must be updated to import pyarrow6.
+    #     # source is there to provide the tests of pyomniscidbe.
     #     pushd "$SRC_DIR/source/Embedded/test/"
     #     for f in *.py;
     #     do

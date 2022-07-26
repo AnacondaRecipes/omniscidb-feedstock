@@ -1,44 +1,22 @@
-
+# -----------------------------------------------------------------------------
+# Repack of omniscidb-common, omniscidbe, pyomniscidbe for modin.
+# modin 0.15.2 requires pyomniscidbe 5.10.1 with pyarrow==6.0.1.
+# The supported versions of arrow on default are 4 and 8. A decision 
+# was made to support pyomniscidbe 5.10.1 through a repack rather than
+# adding full support of arrow 6 on default.
+#
+# What to consider for a repack:
+# - Tests results should be the same on both the original and repacked package.
+# - Configure dependencies of repacked packages according to host run_export 
+#   and run dependencies.
+# - Isolate the repacked binaries in a dedicated folder.
+# ------------------------------------------------------------------------------
 
 {% set version = "5.10.1" %}
 {% set buildnum = "0" %}
 {% set install_base = "opt/omnisci" %}
 {% set pyver = 'py' ~ python | replace('.', '') %}
-{% set arrow_hash_map = {
-                  'py37' : 'py37h60b952e_0',
-                  'py38' : 'py38h60b952e_0',
-                  'py39' : 'py39h60b952e_0',
-                  'py310' : 'py310h3098874_0',
-               }
-%}
-{% set arrow_sha256_map = {
-                  'py37' : '95fbeb9784f152f17b2f1340c86bc53f5a5968d63f2c4a97268e85fd3a25b3d3',
-                  'py38' : 'caf0e8ab0d22d8c39c9c5148ab911d9c854872fe1c333f6aa0e8afed8ed3c991',
-                  'py39' : '3aafd13efb31b9f58a35f44e87798e823b5c8ec7669dd35a95f0b5346553253b',
-                  'py310' : '1e20f1232a66cae0af57074601d0ab87a7f09da8c774f2ba31f97c080dd53fe6',
-               }
-%}
-{% set pyarrow_hash_map = {
-                  'py37' : 'py37h992f0b0_0',
-                  'py38' : 'py38h992f0b0_0',
-                  'py39' : 'py39h992f0b0_0',
-                  'py310' : 'py310h468efa6_0',
-               }
-%}
-{% set pyarrow_sha256_map = {
-                  'py37' : '9a0bea486c461716afa493b5440e51efad2e7aafcc94a6144878c75aafebec61',
-                  'py38' : '8966c4d110254be6889ab388f05307c329337b6187e0d266a946ffb4535cbf7b',
-                  'py39' : 'a216fff5a170090a8c4f88e9c2ed16df2c444c64f03db658641cbf3c0cdce2ad',
-                  'py310' : '19d6522166076c49f218919bf25a9d1fe949cb21052a757db413344faf9da0e8',
-               }
-%}
-{% set pyomniscidbe_sha256_map = {
-                  'py37'  : '962b623f59c9fbc0458ed7133c760fb2d5c25204608d5c6e68a214c7f9457718',
-                  'py38'  : '4a66ce11ee2da9d25c53f3a321dda6b3f3b247f5d4f4d534f1e29940626da63f',
-                  'py39'  : '6ef2f624975c9776bcfde8b38e4fcce50dc33cf5033da11ba7871ad419744f69',
-                  'py310' : 'cafa947db4764a29c4679a060c4cb1b4161eb4cda8c1e0eec783bc7a85d6ead3',
-               }
-%}
+{% set arrow_ver = "6.0.1" %}
 
 package:
   name: omniscidb-ext
@@ -54,24 +32,48 @@ source:
   - url: https://anaconda.org/conda-forge/omniscidbe/{{ version }}/download/{{ target_platform }}/omniscidbe-{{ version }}-h1234567_{{ buildnum }}_cpu.tar.bz2
     folder: omniscidbe
     sha256: cc153d0c9fbde724457a62a661f06d00ce8946d6445e23fb2e9b3e3eccdcdca9
-  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-{{ pyver }}h1234567_{{ buildnum }}_cpu.tar.bz2
-    folder: pyomniscidbe
-    sha256: {{ pyomniscidbe_sha256_map[pyver] }}
-  - url: https://anaconda.org/stiwari_anac_org/libboost/1.74.0/download/{{ target_platform }}/libboost-1.74.0-hb88907d_0.tar.bz2
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py37h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py37'
+    sha256: 962b623f59c9fbc0458ed7133c760fb2d5c25204608d5c6e68a214c7f9457718
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py38h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py38'
+    sha256: 4a66ce11ee2da9d25c53f3a321dda6b3f3b247f5d4f4d534f1e29940626da63f
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py39h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py39'
+    sha256: 6ef2f624975c9776bcfde8b38e4fcce50dc33cf5033da11ba7871ad419744f69
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py310h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py310'
+    sha256: cafa947db4764a29c4679a060c4cb1b4161eb4cda8c1e0eec783bc7a85d6ead3
+  # libboost built from: https://github.com/AnacondaRecipes/boost-feedstock/commit/0e783c6e3ddcb3ae857bf3d1ba49f99bebc5b3d1
+  - url: https://anaconda.org/cbouss/libboost/1.74.0/download/{{ target_platform }}/libboost-1.74.0-hb88907d_0.tar.bz2
     folder: boost
     sha256: 2fededc174457aac466963ccb7858638ad91299df1addbb5fe22dea7a9a22d8e
-  # - url: https://anaconda.org/conda-forge/boost-cpp/1.74.0/download/{{ target_platform }}/boost-cpp-1.74.0-h75c5d50_8.tar.bz2
-  #   folder: boost
-  #   sha256: 82d7d5c3042baae2cc7ee798612681f72ad348978d72ac17de9f3c41183f0a19
-  # - url: https://anaconda.org/conda-forge/icu/70.1/download/{{ target_platform }}/icu-70.1-h27087fc_0.tar.bz2
-  #   folder: icu
-  #   sha256: 1d7950f3be4637ab915d886304e57731d39a41ab705ffc95c4681655c459374a
-  - url: https://anaconda.org/cbouss/arrow-cpp/6.0.1/download/linux-64/arrow-cpp-6.0.1-{{ arrow_hash_map[pyver] }}.tar.bz2
-    folder: arrowcpp
-    sha256: {{ arrow_sha256_map[pyver] }}
-  - url: https://anaconda.org/cbouss/pyarrow/6.0.1/download/linux-64/pyarrow-6.0.1-{{ pyarrow_hash_map[pyver] }}.tar.bz2
-    folder: pyarrow
-    sha256: {{ pyarrow_sha256_map[pyver] }}
+  # arrow-cpp built from: https://github.com/AnacondaRecipes/arrow-cpp-feedstock/commit/a9e8b445fa17153813c784491e81ba3a96d52e86
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py37h60b952e_0.tar.bz2
+    folder: 'arrowcpp_py37'
+    sha256: 95fbeb9784f152f17b2f1340c86bc53f5a5968d63f2c4a97268e85fd3a25b3d3
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py38h60b952e_0.tar.bz2
+    folder: 'arrowcpp_py38'
+    sha256: caf0e8ab0d22d8c39c9c5148ab911d9c854872fe1c333f6aa0e8afed8ed3c991
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py39h60b952e_0.tar.bz2
+    folder: 'arrowcpp_py39'
+    sha256: 3aafd13efb31b9f58a35f44e87798e823b5c8ec7669dd35a95f0b5346553253b
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py310h3098874_0.tar.bz2
+    folder: 'arrowcpp_py310'
+    sha256: 1e20f1232a66cae0af57074601d0ab87a7f09da8c774f2ba31f97c080dd53fe6
+  # pyarrow built from: https://github.com/AnacondaRecipes/pyarrow-feedstock/commit/64de08630f649bb9cc0eb637875a18dc3e08d7dc
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py37h992f0b0_0.tar.bz2
+    folder: 'pyarrow_py37'
+    sha256: 9a0bea486c461716afa493b5440e51efad2e7aafcc94a6144878c75aafebec61
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py38h992f0b0_0.tar.bz2
+    folder: 'pyarrow_py38'
+    sha256: 8966c4d110254be6889ab388f05307c329337b6187e0d266a946ffb4535cbf7b
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py39h992f0b0_0.tar.bz2
+    folder: 'pyarrow_py39'
+    sha256: a216fff5a170090a8c4f88e9c2ed16df2c444c64f03db658641cbf3c0cdce2ad
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py310h468efa6_0.tar.bz2
+    folder: 'pyarrow_py310'
+    sha256: 19d6522166076c49f218919bf25a9d1fe949cb21052a757db413344faf9da0e8
   - url: https://anaconda.org/conda-forge/libclang-cpp11.1/11.1.0/download/{{ target_platform }}/libclang-cpp11.1-11.1.0-default_ha53f305_1.tar.bz2
     folder: libclang-cpp
     sha256: 24427a0c7d99423199a97c4e7ddec20b1bf6f35bad3fb1d5acea0a65c52e4834
@@ -81,7 +83,6 @@ build:
   binary_relocation: false
   detect_binary_files_with_prefix: false
   skip: True  # [not (x86 and linux)]
-  skip: True  # [python != '3.9']
   runpath_whitelist:
     - $ORIGIN
 
@@ -92,8 +93,6 @@ outputs:
     build:
       #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: True  # [not (x86 and linux)]
-      #skip: True  # [python != '3.9']
-      #skip: True
       run_exports:
         - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
     requirements:
@@ -140,7 +139,6 @@ outputs:
       description: |
         OmniSciDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-        This package is a repackaged set of binaries obtained directly from Intel\'s anaconda.org conda-forge channel.
       doc_url: https://www.omnisci.com/docs/latest/
       dev_url: https://github.com/omnisci/omniscidb
 
@@ -150,7 +148,6 @@ outputs:
     build:
       #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: True  # [not (x86 and linux)]
-      skip: True  # [python != '3.9']
       run_exports:
         - {{ pin_subpackage('omniscidbe',  max_pin='x.x.x') }}
       ignore_run_exports:
@@ -320,7 +317,6 @@ outputs:
     build:
       #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
       skip: True  # [not (x86 and linux)]
-      skip: True  # [python != '3.9']
       run_exports:
         - {{ pin_subpackage('pyomniscidbe',  max_pin='x.x.x') }}
       ignore_run_exports:
@@ -432,7 +428,11 @@ outputs:
         - python
         # ------------------------------------------------------------------------
       run_constrained:
-        - pyarrow ==6.0.1
+        # ------------------------------------------------------------------------
+        # repack of pyarrow 6.0.1 requires preventing installation with other 
+        # versions of pyarrow.
+        # ------------------------------------------------------------------------
+        - pyarrow =={{ arrow_ver }}
     test:
       requires:
         - pytest
@@ -447,7 +447,7 @@ outputs:
         - python source/Embedded/test/test_fsi.py
         - python source/Embedded/test/test_readcsv.py
         # Commenting test_exceptions as it crashes.
-        # The behavior is the same with the original omniscidb package on conda-forge.
+        # The behavior is the same with the original pyomniscidbe package on conda-forge.
         #- pytest -sv source/Embedded/test/test_exceptions.py
     about:
       home: https://www.omnisci.com/
