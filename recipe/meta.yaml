@@ -131,16 +131,16 @@ outputs:
         #
         - test -f ${PREFIX}/{{ install_base }}/bin/generate_cert
     about:
-      home: https://www.omnisci.com/
+      home: https://www.heavy.ai/
       license: Apache-2.0
       license_family: APACHE
       license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
-      summary: The OmniSci database common files.
+      summary: The OmniSci / HeavyDB database common files.
       description: |
-        OmniSciDB is an in-memory, column store, SQL relational database
+        OmniSciDB / HeavyDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-      doc_url: https://www.omnisci.com/docs/latest/
-      dev_url: https://github.com/omnisci/omniscidb
+      doc_url: https://docs.heavy.ai/
+      dev_url: https://github.com/heavyai/heavydb
 
   - name: omniscidbe
     version: {{ version }}
@@ -301,16 +301,16 @@ outputs:
           test -n "${OMNISCI_ROOT_PATH+x}"
           ldd ${PREFIX}/lib/libDBEngine.so
     about:
-      home: https://www.omnisci.com/
+      home: https://www.heavy.ai/
       license: Apache-2.0
       license_family: APACHE
       license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
-      summary: The OmniSci database
+      summary: The OmniSci / HeavyDB database
       description: |
-        OmniSciDB is an in-memory, column store, SQL relational database
+        OmniSciDB / HeavyDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-      doc_url: https://www.omnisci.com/docs/latest/
-      dev_url: https://github.com/omnisci/omniscidb
+      doc_url: https://docs.heavy.ai/
+      dev_url: https://github.com/heavyai/heavydb
 
   - name: pyomniscidbe
     script: repack.sh   # [unix]
@@ -450,13 +450,13 @@ outputs:
         # The behavior is the same with the original pyomniscidbe package on conda-forge.
         #- pytest -sv source/Embedded/test/test_exceptions.py
     about:
-      home: https://www.omnisci.com/
+      home: https://www.heavy.ai/
       license: Apache-2.0
       license_family: APACHE
       license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
-      summary: The OmniSci database
+      summary: The OmniSci / HeavyDB database
       description: |
-        OmniSciDB is an in-memory, column store, SQL relational database
+        OmniSciDB / HeavyDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-      doc_url: https://www.omnisci.com/docs/latest/
-      dev_url: https://github.com/omnisci/omniscidb
+      doc_url: https://docs.heavy.ai/
+      dev_url: https://github.com/heavyai/heavydb
