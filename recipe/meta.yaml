@@ -1,94 +1,104 @@
-{% set version = "5.7.1" %}  # PEP 386
-{% set source_version = "5.7.1" %}
-{% set base_version = "5.7.1" %}
-{% set number = "0" %}
-{% set cuda_enabled = cuda_compiler_version is not undefined and cuda_compiler_version == '11.0' %}
-{% set build_ext_version = "1.0.0" %}
-{% set build_ext = "cuda" if cuda_enabled else "cpu" %}
+# -----------------------------------------------------------------------------
+# Repack of omniscidb-common, omniscidbe, pyomniscidbe for modin.
+# modin 0.15.2 requires pyomniscidbe 5.10.1 with pyarrow==6.0.1.
+# The supported versions of arrow on default are 4 and 8. A decision 
+# was made to support pyomniscidbe 5.10.1 through a repack rather than
+# adding full support of arrow 6 on default.
+#
+# What to consider for a repack:
+# - Tests results should be the same on both the original and repacked package.
+# - Configure dependencies of repacked packages according to host run_export 
+#   and run dependencies.
+# - Isolate the repacked binaries in a dedicated folder.
+# ------------------------------------------------------------------------------
+
+{% set version = "5.10.1" %}
+{% set buildnum = "0" %}
 {% set install_base = "opt/omnisci" %}
-{% set arrow_version = "3.*" %}
-{% set pythrift_version = "0.13.*" %}
-{% set thrift_version = "0.14.*" %}
-# omniscidb 5.7 is not LLVM 12 ready
-{% set llvm_version = "<12" %}
+{% set pyver = 'py' ~ python | replace('.', '') %}
+{% set arrow_ver = "6.0.1" %}
 
 package:
   name: omniscidb-ext
   version: {{ version }}
 
 source:
-  url: https://github.com/omnisci/omniscidb/archive/v{{ source_version }}.tar.gz
-  sha256: 395448687140e8c42f507f4466ceb074e7c0b354369f89f84bfbd80342f4a003
-  patches:
-    - 0001-explicitly-read-head-from-cons.patch
+  - url: https://github.com/omnisci/omniscidb/archive/v{{ version }}.tar.gz
+    folder: source
+    sha256: a41099704792cf928c9bc8e7f1c6ede1a400b0c024a8d22e8c4daaff329bd451
+  - url: https://anaconda.org/conda-forge/omniscidb-common/{{ version }}/download/{{ target_platform }}/omniscidb-common-{{ version }}-h1234567_{{ buildnum }}.tar.bz2
+    folder: omniscidb-common
+    sha256: 91c7c146381e7a8d866c23ad6d2834844922c2d5e78b5c873a0c7b5e7acbc571
+  - url: https://anaconda.org/conda-forge/omniscidbe/{{ version }}/download/{{ target_platform }}/omniscidbe-{{ version }}-h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: omniscidbe
+    sha256: cc153d0c9fbde724457a62a661f06d00ce8946d6445e23fb2e9b3e3eccdcdca9
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py37h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py37'
+    sha256: 962b623f59c9fbc0458ed7133c760fb2d5c25204608d5c6e68a214c7f9457718
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py38h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py38'
+    sha256: 4a66ce11ee2da9d25c53f3a321dda6b3f3b247f5d4f4d534f1e29940626da63f
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py39h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py39'
+    sha256: 6ef2f624975c9776bcfde8b38e4fcce50dc33cf5033da11ba7871ad419744f69
+  - url: https://anaconda.org/conda-forge/pyomniscidbe/{{ version }}/download/{{ target_platform }}/pyomniscidbe-{{ version }}-py310h1234567_{{ buildnum }}_cpu.tar.bz2
+    folder: 'pyomniscidbe_py310'
+    sha256: cafa947db4764a29c4679a060c4cb1b4161eb4cda8c1e0eec783bc7a85d6ead3
+  # libboost built from: https://github.com/AnacondaRecipes/boost-feedstock/commit/0e783c6e3ddcb3ae857bf3d1ba49f99bebc5b3d1
+  - url: https://anaconda.org/cbouss/libboost/1.74.0/download/{{ target_platform }}/libboost-1.74.0-hb88907d_0.tar.bz2
+    folder: boost
+    sha256: 2fededc174457aac466963ccb7858638ad91299df1addbb5fe22dea7a9a22d8e
+  # arrow-cpp built from: https://github.com/AnacondaRecipes/arrow-cpp-feedstock/commit/a9e8b445fa17153813c784491e81ba3a96d52e86
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py37h60b952e_0.tar.bz2
+    folder: 'arrowcpp_py37'
+    sha256: 95fbeb9784f152f17b2f1340c86bc53f5a5968d63f2c4a97268e85fd3a25b3d3
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py38h60b952e_0.tar.bz2
+    folder: 'arrowcpp_py38'
+    sha256: caf0e8ab0d22d8c39c9c5148ab911d9c854872fe1c333f6aa0e8afed8ed3c991
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py39h60b952e_0.tar.bz2
+    folder: 'arrowcpp_py39'
+    sha256: 3aafd13efb31b9f58a35f44e87798e823b5c8ec7669dd35a95f0b5346553253b
+  - url: https://anaconda.org/cbouss/arrow-cpp/{{ arrow_ver }}/download/linux-64/arrow-cpp-{{ arrow_ver }}-py310h3098874_0.tar.bz2
+    folder: 'arrowcpp_py310'
+    sha256: 1e20f1232a66cae0af57074601d0ab87a7f09da8c774f2ba31f97c080dd53fe6
+  # pyarrow built from: https://github.com/AnacondaRecipes/pyarrow-feedstock/commit/64de08630f649bb9cc0eb637875a18dc3e08d7dc
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py37h992f0b0_0.tar.bz2
+    folder: 'pyarrow_py37'
+    sha256: 9a0bea486c461716afa493b5440e51efad2e7aafcc94a6144878c75aafebec61
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py38h992f0b0_0.tar.bz2
+    folder: 'pyarrow_py38'
+    sha256: 8966c4d110254be6889ab388f05307c329337b6187e0d266a946ffb4535cbf7b
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py39h992f0b0_0.tar.bz2
+    folder: 'pyarrow_py39'
+    sha256: a216fff5a170090a8c4f88e9c2ed16df2c444c64f03db658641cbf3c0cdce2ad
+  - url: https://anaconda.org/cbouss/pyarrow/{{ arrow_ver }}/download/linux-64/pyarrow-{{ arrow_ver }}-py310h468efa6_0.tar.bz2
+    folder: 'pyarrow_py310'
+    sha256: 19d6522166076c49f218919bf25a9d1fe949cb21052a757db413344faf9da0e8
+  - url: https://anaconda.org/conda-forge/libclang-cpp11.1/11.1.0/download/{{ target_platform }}/libclang-cpp11.1-11.1.0-default_ha53f305_1.tar.bz2
+    folder: libclang-cpp
+    sha256: 24427a0c7d99423199a97c4e7ddec20b1bf6f35bad3fb1d5acea0a65c52e4834
 
 build:
-  number: {{ number }}
-  skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0")]
-
-requirements:
-  build:
-    - git
-    - patch     # [not win]
-    - m2-patch  # [win]
+  number: {{ buildnum|int }}
+  binary_relocation: false
+  detect_binary_files_with_prefix: false
+  skip: True  # [not (x86 and linux)]
+  runpath_whitelist:
+    - $ORIGIN
 
 outputs:
   - name: omniscidb-common
     version: {{ version }}
-    script: build-omniscidb.sh
+    script: repack.sh   # [unix]
     build:
-      string: h{{PKG_HASH}}_{{number}}
-      # cpu-only omniscidb-common for cuda is required only for
-      # building cuda-enabled omniscidb
-      skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
-      # todo: are not required, just useful to include. See note under host requirements.
-      ignore_run_exports:
-        - arrow-cpp
-        - blosc
-        - geos
-        - glog
-        - libarchive
-        - libgdal
-        - libllvm10
-        - libpng
-        - librdkafka
-        - libthrift
+      #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
+      skip: True  # [not (x86 and linux)]
+      run_exports:
+        - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
     requirements:
       build:
-        # c compiler is specified here to get run constraint pins correct, presumably..
+        # c compiler is specified here to get run constraint pins correct, presumably...
         - {{ compiler('c') }}
-        # go required for ThirdParty/generate_cert
-        - {{ compiler('cgo') }}
-        - {{ compiler('cxx') }}
-        - clangdev {{ llvm_version }}
-        # clang++ is used for generating the bytecodes of extension functions
-        - clangxx {{ llvm_version }}
-        - cmake
-        - llvmdev {{ llvm_version }}
-        - ninja
-        - maven
-      host:
-        # omniscidb-common does not depend on build_ext, arrow-cpp
-        # (and other dependencies) is required just for the presence
-        # so that one could run cmake for generating *.bc, and other
-        # common data files.
-        - arrow-cpp ={{ arrow_version }}
-        - bisonpp
-        - blosc
-        - boost-cpp
-        - clangdev {{ llvm_version }}
-        - double-conversion
-        - flex
-        - fmt
-        - geos
-        - glog
-        - llvmdev {{ llvm_version }}
-        - llvm {{ llvm_version }}
-        - libarchive
-        - libgdal
-        - libpng
-        - librdkafka
-        - thrift-cpp {{ thrift_version }}
     test:
       commands:
         # Test installation
@@ -112,264 +122,171 @@ outputs:
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/RuntimeFunctions.bc
         - test -f ${PREFIX}/{{ install_base }}/QueryEngine/ExtensionFunctions.ast
         # jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ base_version }}.jar
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ base_version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-utility-{{ version }}.jar
+        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci-jdbc-{{ version }}.jar
         - test -f ${PREFIX}/{{ install_base }}/bin/calcite-1.0-SNAPSHOT-jar-with-dependencies.jar
         # Unspecified
         - test -f ${PREFIX}/{{ install_base }}/bin/startomnisci
         - test -f ${PREFIX}/{{ install_base }}/bin/omnisci_insert_sample_data
         #
         - test -f ${PREFIX}/{{ install_base }}/bin/generate_cert
-
-  - name: omniscidb
-    version: {{ version }}
-    script: build-omniscidb.sh
-    build:
-      string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
-      skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
-      missing_dso_whitelist:
-        - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
-        - lib/libclang-cpp.so.10  # covered by libclang-cpp
-      track_features:
-        {{ "- arrow-cuda" if cuda_enabled else "" }}
-      ignore_run_exports:
-        - cudatoolkit    # [cuda_compiler_version not in (undefined, "None")]
-        # In these the static archive is being picked up even with -DPREFER_STATIC_LIBS=off.
-        - gflags
-        - glog
-        - libclang-cpp
-        - libkml
-        - ncurses
-        - openldap
-    requirements:
-      build:
-        # c compiler is specified here to get run constraint pins correct, presumably..
-        - {{ compiler('c') }}
-        - {{ compiler('cgo') }}
-        - {{ compiler('cxx') }}
-        - {{ compiler("cuda") }}  # [cuda_compiler_version not in (undefined, "None")]
-        - clangdev {{ llvm_version }}
-        # clang++ is used for generating the bytecodes of extension functions
-        - clangxx {{ llvm_version }}
-        - cmake
-        - llvmdev {{ llvm_version }}
-        - make
-        - ninja
-        - maven
-      host:
-        - arrow-cpp ={{ arrow_version }}
-        - bisonpp
-        - blosc
-        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
-        - boost-cpp
-        - libboost
-        - clangdev {{ llvm_version }}
-        - double-conversion
-        - flex
-        - fmt
-        - gflags
-        - glog
-        - llvmdev {{ llvm_version }}
-        - llvm {{ llvm_version }}
-        - libarchive
-        - libgdal
-        - libkml
-        - libpng
-        - librdkafka
-        - ncurses
-        - openldap
-        - openssl
-        - snappy
-        - tbb
-        - tbb-devel
-        - thrift-cpp {{ thrift_version }}
-      run:
-        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
-        - boost-cpp
-        - libboost
-        - double-conversion
-        - bzip2
-        # omnscidb Load-time UDF support calls clang++
-        - gxx_{{ target_platform }}
-        - libclang-cpp {{ llvm_version }}
-        - ncurses
-        - openjdk 8.*
-        - xz
-        - zlib
-        - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
-      run_constrained:
-        - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
-
-    test:
-      commands:
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci_server
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisci_initdb
-        - test -f ${PREFIX}/{{ install_base }}/bin/omnisql
-        - test -f ${PREFIX}/{{ install_base }}/bin/KafkaImporter
-        - test -f ${PREFIX}/{{ install_base }}/bin/StreamImporter
-
-        # Verify the activation scripts are in-place.
-        {% for state in ["activate", "deactivate"] %}
-        - test -f "${PREFIX}/etc/conda/{{ state }}.d/{{ PKG_NAME }}_{{ state }}.sh"
-        {% endfor %}
-        # Try using the activation scripts.
-        - |
-          if [[ -x "$(command -v omnisql)" ]]
-          then
-            echo "Found omnisql in PATH"
-          else
-            echo "omnisql not found in PATH(=$PATH)" && exit 1
-          fi
-          source ${PREFIX}/etc/conda/deactivate.d/{{ PKG_NAME }}_deactivate.sh
-          if [[ -x "$(command -v omnisql)" ]]
-          then
-            echo "Unexpectedly found omnisql in PATH(=$PATH) after deactivation"  && exit 1
-          else
-            echo "omnisql not in PATH after deactivation"
-          fi
-          source ${PREFIX}/etc/conda/activate.d/{{ PKG_NAME }}_activate.sh
-        # Test installation
-        - omnisql -v
-        - which omnisci_initdb
-        - which omnisci_server
-        - |
-          if [ -x "$(command -v nvidia-smi)" ]; then  # [cuda_compiler_version not in (undefined, "None")]
-            mkdir data && omnisci_initdb data
-            omnisci_server --version
-            rm -rf data
-          fi                                          # [cuda_compiler_version not in (undefined, "None")]
-        # these are provided by omniscidb-common package:
-        - which omnisci_insert_sample_data
-        - which startomnisci
-
     about:
-      home: https://www.omnisci.com/
+      home: https://www.heavy.ai/
       license: Apache-2.0
       license_family: APACHE
-      license_file: LICENSE.md
-      summary: The OmniSci database
-
+      license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
+      summary: The OmniSci / HeavyDB database common files.
       description: |
-        OmniSciDB is an in-memory, column store, SQL relational database
+        OmniSciDB / HeavyDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-
-        This recipe provides both CUDA enabled and CUDA disabled omniscidb
-        packages.
-      doc_url: https://www.omnisci.com/docs/latest/
-      dev_url: https://github.com/omnisci/omniscidb
-
-  - name: pyomniscidb
-    version: {{ version }}
-    script: build-pyomniscidb.sh
-    build:
-      skip: true  # [cuda_compiler_version in ("11.0",) or not (linux64 or win64 or osx)]
-      string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}
-      noarch: python
-    requirements:
-      host:
-        - python
-        - setuptools_scm
-        - packaging >=20.0
-      run:
-        - python
-        - setuptools
-        - {{ pin_compatible('numpy', lower_bound='1.16') }}
-        - thrift {{ pythrift_version }}
-        - packaging >=20.0
-        - sqlalchemy >=1.3
-        - requests
-
-    about:
-      home: http://github.com/omnisci/pyomnisci
-      license: Apache-2.0
-      license_family: Apache
-      license_file: ./python/LICENSE.md
-      summary: A python DB API 2 compatible client for OmniSci (formerly MapD).
-      description: |
-        A python DB API 2 compatible client for OmniSci (formerly MapD).
-      doc_url: https://pyomnisci.readthedocs.io
-      dev_url: https://github.com/omnisci/pyomnisci
-
-    test:
-      imports:
-        - omnisci.cursor
+      doc_url: https://docs.heavy.ai/
+      dev_url: https://github.com/heavyai/heavydb
 
   - name: omniscidbe
     version: {{ version }}
-    script: build-omniscidb.sh
+    script: repack.sh   # [unix]
     build:
-      string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
-      skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
-      missing_dso_whitelist:
-        - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
-        - lib/libclang-cpp.so.10  # covered by libclang-cpp
-      track_features:
-        {{ "- arrow-cuda" if cuda_enabled else "" }}
+      #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
+      skip: True  # [not (x86 and linux)]
+      run_exports:
+        - {{ pin_subpackage('omniscidbe',  max_pin='x.x.x') }}
       ignore_run_exports:
-        - cudatoolkit    # [cuda_compiler_version not in (undefined, "None")]
-        # In these the static archive is being picked up even with -DPREFER_STATIC_LIBS=off.
-        - glog
-        - libclang-cpp
+        - omniscidb-common
         - ncurses
-        - librdkafka
-      rpaths:
-        - lib/
-        # fixes "not found" in `ldd $PREFIX/lib/libDBEngine.so` output
-        - {{ install_base }}/lib
+
+        - gflags
+        - gxx_linux-64
+        - python
+
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        # openssl, glog and zlib are expected by the build system but not
+        # used/needed in all the configurations that we build.
+        - glog
+        - openssl  # [not win]
+        - zlib
+        - abseil-cpp  # [win]
+        # ------------------------------------------------------------------------
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
         - {{ compiler('c') }}
-        - {{ compiler('cgo') }}
-        - {{ compiler('cxx') }}
-        - {{ compiler("cuda") }}  # [cuda_compiler_version not in (undefined, "None")]
-        - clangdev {{ llvm_version }}
-        # clang++ is used for generating the bytecodes of extension functions
-        - clangxx {{ llvm_version }}
-        - cmake
-        - llvmdev {{ llvm_version }}
-        - make
-        - ninja
-        - maven
+        - patchelf
       host:
-        - arrow-cpp ={{ arrow_version }}
-        - bisonpp
-        - blosc
-        - boost-cpp
-        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
-        - libboost
-        - clangdev {{ llvm_version }}
-        - double-conversion
-        - flex
-        - fmt
-        - glog
-        - llvmdev {{ llvm_version }}
-        - llvm {{ llvm_version }}
-        - libarchive
-        - libgdal
-        - libpng
-        - librdkafka
-        - tbb
-        - tbb-devel
-        - thrift-cpp {{ thrift_version }}
-      run:
-        - boost-cpp
-        # boost-cpp is a pointer to libboost; include libboost so the linking metadata is correct.
-        - libboost
+        #- arrow-cpp >=6.0.1,<6.0.2.0a0       # --> repack of arrow-cpp
+        #- arrow-cpp-proc 3.* cpu             # --> repack of arrow-cpp
+        - blosc >=1.21.0,<2.0a0
+        #- boost-cpp >=1.74.0,<1.74.1.0a0     # --> repack of boost-cpp
         - bzip2
-        # omnscidb Load-time UDF support calls clang++
-        - gxx_{{ target_platform }}
-        - libclang-cpp {{ llvm_version }}
+        #- double-conversion >=3.2.0,<3.3.0a0 # --> 3.1.5 in default is compatible
+        - double-conversion >=3.1.5,<3.3.0a0
+        - gxx_linux-64
+        - libarchive >=3.5.2,<3.6.0a0
+        #- libclang-cpp >=11.1.0,<11.2.0a0    # --> repack of libclang-cpp
+        - libgcc-ng >=9.4.0
+        - libgdal >=3.4.1,<3.5.0a0
+        - libllvm11 >=11.1.0,<11.2.0a0
+        - libpng >=1.6.37,<1.7.0a0
+        - libstdcxx-ng >=9.4.0
+        - libthrift >=0.15.0,<0.15.1.0a0
         - ncurses
+        - omniscidb-common >=5.10.1,<5.10.2.0a0
         - openjdk 8.*
+        - tbb >=2021.5.0
         - xz
         - zlib
-        - {{ pin_subpackage('omniscidb-common',  max_pin='x.x.x') }}
-        - double-conversion
-        - librdkafka
         - snappy
-      run_constrained:
-        - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
+        - xerces-c
+
+        # ------------------------------------------------------------------------
+        # repack of libboost requires providing the same dependencies
+        # the following section is a copy-paste from boost's recipe
+        # ------------------------------------------------------------------------
+        - icu  # [unix]
+        - libiconv  # [osx]
+        - bzip2  # [unix]
+        - xz >=5.2.5
+        - zstd >=1.4.5
+        - zlib >=1.2.11
+
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        - abseil-cpp  # [not osx]
+        - aws-sdk-cpp
+        - boost-cpp
+        - brotli
+        - bzip2
+        # Only required and used on Windows.
+        - c-ares  # [win]
+        # The binary using this presumably isn't built on Windows.
+        - gflags  # [not win]
+        - glog
+        - grpc-cpp
+        - lz4-c
+        - numpy
+        - openssl
+        - orc  # [unix]
+        - libprotobuf
+        - rapidjson
+        - re2
+        - snappy
+        - thrift-cpp
+        - uriparser
+        - utf8proc
+        - zlib
+        - zstd
+        - python 
+        # ------------------------------------------------------------------------
+      run:
+        - {{ pin_subpackage('omniscidb-common', exact=True) }}
+
+        #- arrow-cpp >=6.0.1,<6.0.2.0a0       # --> repack of arrow-cpp
+        #- arrow-cpp-proc 3.* cpu             # --> repack of arrow-cpp
+        - blosc >=1.21.0,<2.0a0
+        #- boost-cpp >=1.74.0,<1.74.1.0a0     # --> repack of boost-cpp
+        - bzip2
+        #- double-conversion >=3.2.0,<3.3.0a0 # --> 3.1.5 in default is compatible
+        - double-conversion >=3.1.5,<3.3.0a0
+        - gxx_linux-64
+        - libarchive >=3.5.2,<3.6.0a0
+        #- libclang-cpp >=11.1.0,<11.2.0a0    # --> repack of libclang-cpp
+        - libgcc-ng >=9.4.0
+        - libgdal >=3.4.1,<3.5.0a0
+        - libllvm11 >=11.1.0,<11.2.0a0
+        - libpng >=1.6.37,<1.7.0a0
+        - libstdcxx-ng >=9.4.0
+        - libthrift >=0.15.0,<0.15.1.0a0
+        - ncurses
+        - openjdk 8.*
+        - tbb >=2021.5.0
+        - xz
+        - zlib
+        - zstd
+
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        # gflags does have a run_exports, but for some reason conda-build doesn't
+        # pick it up.
+        - {{ pin_compatible('gflags', max_pin='x.x') }}  # [not win]
+        # brotli doesn't have run_exports defined.
+        - brotli  # [osx]
+        # Set this to some reasonable lower limit.
+        - {{ pin_compatible('numpy', lower_bound='1.16') }}
+        - utf8proc
+        # It's not clear to me, why conda-build detects them, but doesn't create
+        # an automatic dependency.
+        - zlib  # [win]
+        - python
+        # ------------------------------------------------------------------------
+
+      # run_constrained:
+      #   - arrow-cpp-proc 3.* cpu
 
     test:
       commands:
@@ -383,91 +300,139 @@ outputs:
           source ${PREFIX}/etc/conda/activate.d/{{ PKG_NAME }}_activate.sh
           test -n "${OMNISCI_ROOT_PATH+x}"
           ldd ${PREFIX}/lib/libDBEngine.so
-
     about:
-      home: https://www.omnisci.com/
+      home: https://www.heavy.ai/
       license: Apache-2.0
       license_family: APACHE
-      license_file: LICENSE.md
-      summary: The OmniSci database
-
+      license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
+      summary: The OmniSci / HeavyDB database
       description: |
-        OmniSciDB is an in-memory, column store, SQL relational database
+        OmniSciDB / HeavyDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-      doc_url: https://www.omnisci.com/docs/latest/
-      dev_url: https://github.com/omnisci/omniscidb
+      doc_url: https://docs.heavy.ai/
+      dev_url: https://github.com/heavyai/heavydb
 
   - name: pyomniscidbe
-    version: {{ version }}
-    script: build-omniscidb.sh
+    script: repack.sh   # [unix]
     build:
-      string: py{{CONDA_PY}}h{{PKG_HASH}}_{{number}}_{{build_ext}}
-      skip: true  # [cuda_compiler_version not in (undefined, "None", "11.0") or not linux64]
-      missing_dso_whitelist:
-        - '*/libcuda.*'  # [cuda_compiler_version not in (undefined, "None")]
-      track_features:
-        {{ "- arrow-cuda" if cuda_enabled else "" }}
+      #string: h{{PKG_HASH}}_{{number}}_{{build_ext}}
+      skip: True  # [not (x86 and linux)]
+      run_exports:
+        - {{ pin_subpackage('pyomniscidbe',  max_pin='x.x.x') }}
       ignore_run_exports:
-        - cudatoolkit    # [cuda_compiler_version not in (undefined, "None")]
-        # these are all needed for omniscidbe itself, not the python portion..
-        - arrow-cpp
-        - blosc
-        - glog
-        - libarchive
-        - libgdal
-        - libllvm10
-        - libpng
-        - librdkafka
+        # all deps below are from arrow-cpp.
+        # somehow pyomniscidbe doesn't seem to need them...
+        - python
+        - abseil-cpp
+        - orc
+        - zstd
         - libthrift
+        - brotli
+        - libprotobuf
+        - glog
+        - grpc-cpp
+        - lz4-c
+        - openssl
+        - xz
+        - bzip2
+        - zlib
+        - aws-sdk-cpp
+        - gflags
+        - re2
+        - snappy
+        - icu
     requirements:
       build:
         # c compiler is specified here to get run constraint pins correct, presumably..
         - {{ compiler('c') }}
-        - {{ compiler('cgo') }}
-        - {{ compiler('cxx') }}
-        - {{ compiler("cuda") }}  # [cuda_compiler_version not in (undefined, "None")]
-        - clangdev {{ llvm_version }}
-        # clang++ is used for generating the bytecodes of extension functions
-        - clangxx {{ llvm_version }}
-        - cmake
-        - llvmdev {{ llvm_version }}
-        - make
-        - ninja
-        - maven
       host:
-        - arrow-cpp ={{ arrow_version }}
-        - bisonpp
-        - blosc
-        - boost-cpp
-        - clangdev {{ llvm_version }}
-        - cython
-        - double-conversion
-        - flex
-        - fmt
-        - glog
-        - llvmdev {{ llvm_version }}
-        - llvm {{ llvm_version }}
-        - libarchive
-        - libgdal
-        - libpng
-        - librdkafka
-        - numpy
-        - pyarrow ={{ arrow_version }}
-        - python
-        - pytest
-        - tbb
-        - tbb-devel
-        - thrift-cpp {{ thrift_version }}
+        # ------------------------------------------------------------------------
+        # repack of pyomniscidbe requires providing the host dependencies
+        # which trigger a run_export.
+        # ------------------------------------------------------------------------
         - {{ pin_subpackage('omniscidbe', exact=True) }}
+        - libgcc-ng >=9.4.0
+        - libstdcxx-ng >=9.4.0
+        - libthrift >=0.15.0,<0.15.1.0a0
+        # ------------------------------------------------------------------------
+
+        # ------------------------------------------------------------------------
+        # repack of libboost requires providing the same dependencies
+        # the following section is a copy-paste from boost's recipe
+        # ------------------------------------------------------------------------
+        - icu  # [unix]
+        - libiconv  # [osx]
+        - bzip2  # [unix]
+        - xz >=5.2.5
+        - zstd >=1.4.5
+        - zlib >=1.2.11
+
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        - abseil-cpp  # [not osx]
+        - aws-sdk-cpp
+        - boost-cpp
+        - brotli
+        - bzip2
+        # Only required and used on Windows.
+        - c-ares  # [win]
+        # The binary using this presumably isn't built on Windows.
+        - gflags  # [not win]
+        - glog
+        - grpc-cpp
+        - lz4-c
+        - numpy
+        - openssl
+        - orc  # [unix]
+        - libprotobuf
+        - rapidjson
+        - re2
+        - snappy
+        - thrift-cpp
+        - uriparser
+        - utf8proc
+        - zlib
+        - zstd
+        - python 
+        # ------------------------------------------------------------------------
       run:
-        - pyarrow ={{ arrow_version }}
+        # ------------------------------------------------------------------------
+        # repack of pyomniscidbe requires providing the same dependencies
+        # the following section is a copy-paste from pyomniscidbe's recipe
+        # ------------------------------------------------------------------------
+        #- arrow-cpp-proc {{ arrow_proc_version }} {{ build_ext }}  # --> repack of arrow-cpp
+        #- pyarrow ={{ arrow_version }}=*{{ build_ext }}            # --> repack of pyarrow
         - python
         - tbb4py
         - {{ pin_subpackage('omniscidbe', exact=True) }}
+        - libstdcxx-ng >=9.4.0
+        # ------------------------------------------------------------------------
 
+        # ------------------------------------------------------------------------
+        # repack of arrow-cpp requires providing the same dependencies
+        # the following section is a copy-paste from arrow-cpp's recipe
+        # ------------------------------------------------------------------------
+        # gflags does have a run_exports, but for some reason conda-build doesn't
+        # pick it up.
+        - {{ pin_compatible('gflags', max_pin='x.x') }}  # [not win]
+        # brotli doesn't have run_exports defined.
+        - brotli  # [osx]
+        # Set this to some reasonable lower limit.
+        - {{ pin_compatible('numpy', lower_bound='1.16') }}
+        - utf8proc
+        # It's not clear to me, why conda-build detects them, but doesn't create
+        # an automatic dependency.
+        - zlib  # [win]
+        - python
+        # ------------------------------------------------------------------------
       run_constrained:
-        - cudatoolkit >=11.0  # [cuda_compiler_version not in (undefined, "None")]
-
+        # ------------------------------------------------------------------------
+        # repack of pyarrow 6.0.1 requires preventing installation with other 
+        # versions of pyarrow.
+        # ------------------------------------------------------------------------
+        - pyarrow =={{ arrow_ver }}
     test:
       requires:
         - pytest
@@ -476,49 +441,22 @@ outputs:
       imports:
         - omniscidbe
       source_files:
-        - Embedded/test/
-        - Tests/
+        - source/Embedded/test/
+        - source/Tests/
       commands:
-        - python Embedded/test/test_fsi.py
-        - python Embedded/test/test_readcsv.py
-        - pytest -sv Embedded/test/test_exceptions.py
-
+        - python source/Embedded/test/test_fsi.py
+        - python source/Embedded/test/test_readcsv.py
+        # Commenting test_exceptions as it crashes.
+        # The behavior is the same with the original pyomniscidbe package on conda-forge.
+        #- pytest -sv source/Embedded/test/test_exceptions.py
     about:
-      home: https://www.omnisci.com/
+      home: https://www.heavy.ai/
       license: Apache-2.0
       license_family: APACHE
-      license_file: LICENSE.md
-      summary: The OmniSci database
-
+      license_file: omniscidb-common/share/doc/omnisci/LICENSE.md
+      summary: The OmniSci / HeavyDB database
       description: |
-        OmniSciDB is an in-memory, column store, SQL relational database
+        OmniSciDB / HeavyDB is an in-memory, column store, SQL relational database
         that was designed from the ground up to run on GPUs.
-      doc_url: https://www.omnisci.com/docs/latest/
-      dev_url: https://github.com/omnisci/omniscidb
-
-about:
-  home: https://www.omnisci.com/
-  license: Apache-2.0
-  license_family: APACHE
-  license_file: LICENSE.md
-  summary: The OmniSci database
-
-  description: |
-    OmniSciDB is an in-memory, column store, SQL relational database
-    that was designed from the ground up to run on GPUs.
-
-    This recipe provides the following packages:
-      omniscidb-commong
-      CUDA-enabled omniscidb, cpu and cuda builds
-      pyomniscdb
-      omniscidb embedding library, cpu and cuda builds
-      omniscidb-embedded Python extension module
-  doc_url: https://www.omnisci.com/docs/latest/
-  dev_url: https://github.com/omnisci/omniscidb
-
-extra:
-  recipe-maintainers:
-    - xmnlab
-    - pearu
-    - andrewseidl
-    - jclay
+      doc_url: https://docs.heavy.ai/
+      dev_url: https://github.com/heavyai/heavydb
