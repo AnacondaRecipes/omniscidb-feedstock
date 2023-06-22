@@ -204,7 +204,7 @@ outputs:
         # repack of libboost requires providing the same dependencies
         # the following section is a copy-paste from boost's recipe
         # ------------------------------------------------------------------------
-        - icu  # [unix]
+        - icu {{ icu }}  # [unix]
         - libiconv  # [osx]
         - bzip2  # [unix]
         - xz >=5.2.5
@@ -228,7 +228,7 @@ outputs:
         - grpc-cpp
         - lz4-c
         - numpy
-        - openssl
+        - openssl {{ openssl }}
         - orc  # [unix]
         - libprotobuf
         - rapidjson
@@ -384,7 +384,7 @@ outputs:
         - grpc-cpp
         - lz4-c
         - numpy
-        - openssl
+        - openssl {{ openssl }}
         - orc  # [unix]
         - libprotobuf
         - rapidjson
